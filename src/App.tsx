@@ -20,7 +20,7 @@ import { DISPATCH_ACTION } from '@/constants/store';
 import { BUTTON_COLORS, BUTTON_SIZES, BUTTON_VARIANTS } from '@/enums/theme';
 
 // SVG
-import addIcon from '/images/addIcon.svg';
+import addIcon from '@public/images/addIcon.svg';
 
 /**
  * The App component as the main view for the application.

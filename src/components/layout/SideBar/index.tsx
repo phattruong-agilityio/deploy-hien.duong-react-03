@@ -1,6 +1,9 @@
 // Constants
 import { SIDEBAR_MENU_ITEM } from '@/constants/sidebarItem';
 
+// SVG
+import logoIcon from '@public/images/logoIcon.svg';
+
 /**
  * Sidebar components
  *
@@ -11,7 +14,7 @@ const Sidebar = () => {
     <div className='flex'>
       <div className={'w-[74px] bg-primary-700 h-full p-4 relative duration-300'}>
         <div className='flex items-center'>
-          <img src='/images/logoIcon.svg' className={'cursor-pointer duration-500'} alt='Logo' />
+          <img src={logoIcon} className={'cursor-pointer duration-500'} alt='Logo' />
         </div>
         <ul className='pt-10 flex flex-col items-center justify-center gap-5'>
           {SIDEBAR_MENU_ITEM.map((menu, index) => (
@@ -22,7 +25,7 @@ const Sidebar = () => {
               }
             >
               <a href='#'>
-                <img className='p-2' src={`/images/${menu.src}.svg`} alt={menu.title} />
+                <img className='p-2' src={menu.src} alt={menu.title} />
               </a>
             </li>
           ))}
