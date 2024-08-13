@@ -7,9 +7,10 @@ import StatusLabel from '@/components/common/StatusLabel';
 import Timeline from '@/components/Timeline';
 import ResourceTag from '@/components/ResourcesTag';
 import CurrencyText from '@/components/CurrencyText';
+import ProjectOptionsDropdown from '@/components/ProjectOptionsDropdown';
 
 // Types
-import { ITimelineProps } from '@/components/Timeline';
+import type { ITimelineProps } from '@/components/Timeline';
 
 // Enums
 import { STATUS } from '@/enums/status';
@@ -38,6 +39,13 @@ export interface IProjectItemProps {
   index?: number;
 }
 
+interface IProjectItem extends IProjectItemProps {
+  // onOpenEdit: The function to open edit modal
+  onOpenEdit: (id: string) => void;
+  // onDeleted: The function to open delete modal
+  onDelete: () => void;
+}
+
 const getColorFromStatus = (status: STATUS | string): COLORS => {
   switch (status) {
     case STATUS.ON_TRACK:
@@ -53,11 +61,12 @@ const getColorFromStatus = (status: STATUS | string): COLORS => {
 
 /**
  * Component to render a single project item.
- * @param {IProjectItemProps} prop - The properties for the ProjectItem component.
+ * @param {IProjectItem} prop - The properties for the ProjectItem component.
  *
  * @returns {JSX.Element} The rendered project item as a table row.
  */
 const ProjectItem = ({
+  id,
   index,
   projectName,
   status,
@@ -66,12 +75,14 @@ const ProjectItem = ({
   lastUpdate,
   resources,
   timeline = { timeStart: '-', timeEnd: '-' },
-  estimation
-}: IProjectItemProps): JSX.Element => {
+  estimation,
+  onOpenEdit,
+  onDelete
+}: IProjectItem): JSX.Element => {
   const color = getColorFromStatus(status);
 
   return (
-    <tr className='border bottom-1'>
+    <tr className='border-b border-gray-200 hover:bg-light group'>
       <td className='px-3 py-5 font-medium'>
         <p>{index}</p>
       </td>
@@ -94,7 +105,12 @@ const ProjectItem = ({
         <Timeline timeStart={timeline.timeStart} timeEnd={timeline.timeEnd} />
       </td>
       <td>
-        <CurrencyText currency={estimation} />
+        <div className='flex items-center w-32 justify-between'>
+          <CurrencyText currency={estimation} />
+          <div className='group-hover:block hidden'>
+            <ProjectOptionsDropdown projectId={id} onOpenEdit={onOpenEdit} onDelete={onDelete} />
+          </div>
+        </div>
       </td>
     </tr>
   );

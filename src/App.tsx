@@ -3,8 +3,9 @@ import ProjectTable from '@/components/ProjectTable';
 import Sidebar from '@/components/layout/SideBar';
 import Navbar from '@/components/layout/NavBar';
 import SearchBox from '@/components/SearchBox';
-import ProjectModalForm from '@/components/ProjectModalForm';
+import ProjectModalForm from '@/components/ProjectModalForm/ProjectUpdateForm';
 import Button from '@/components/common/Button';
+import DeleteConfirmationModal from '@/components/ProjectModalForm/ProjectConfirmForm';
 
 // Hooks
 import { useProjectContext } from '@/stores/ProjectProvider';
@@ -20,7 +21,10 @@ import { DISPATCH_ACTION } from '@/constants/store';
 import { BUTTON_COLORS, BUTTON_SIZES, BUTTON_VARIANTS } from '@/enums/theme';
 
 // SVG
-import addIcon from '/images/addIcon.svg';
+import addIcon from '@public/images/addIcon.svg';
+
+// Types
+import type { IProjectItemProps } from '@/components/ProjectItem';
 
 /**
  * The App component as the main view for the application.
@@ -28,18 +32,50 @@ import addIcon from '/images/addIcon.svg';
  * @returns {JSX.Element} The main structure of the application with a sidebar and project table.
  */
 const App = (): JSX.Element => {
-  const { state, dispatch } = useProjectContext();
   const [isProjectModalFormOpen, setIsProjectModalFormOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const { state, dispatch } = useProjectContext();
 
   // TODO: Hooking api here
+
+  // Load mock data into state
   useEffect(() => {
     if (PROJECT_ITEMS) {
       dispatch({ type: DISPATCH_ACTION.MOCKING_PROJECTS_ITEM, payload: PROJECT_ITEMS });
     }
   }, [dispatch]);
 
-  const handleOpenProjectModalForm = () => setIsProjectModalFormOpen(true);
-  const handleCloseProjectModalForm = () => setIsProjectModalFormOpen(false);
+  // Function to handle opening the modal for adding a new project
+  const handleOpenAddProjectModalForm = () => {
+    setIsEditing(false);
+    setIsProjectModalFormOpen(true);
+  };
+
+  // Function to handle opening the modal for editing a project
+  const handleOpenEditProjectModalForm = (id: string) => {
+    const projectToEdit = state.data.find((project: IProjectItemProps) => project.id === id);
+
+    if (projectToEdit) {
+      setIsEditing(true);
+      setIsProjectModalFormOpen(true);
+    }
+  };
+
+  const handleCloseProjectModalForm = () => {
+    setIsProjectModalFormOpen(false);
+    dispatch({ type: DISPATCH_ACTION.CLEAR_SELECTED_PROJECT });
+  };
+
+  const handleOpenDeleteModalForm = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteModalClose = () => {
+    setIsDeleteModalOpen(false);
+    dispatch({ type: DISPATCH_ACTION.CLEAR_SELECTED_PROJECT });
+  };
 
   return (
     <main className='flex'>
@@ -52,18 +88,27 @@ const App = (): JSX.Element => {
             variant={BUTTON_VARIANTS.CONTAINED}
             size={BUTTON_SIZES.SMALL}
             color={BUTTON_COLORS.PRIMARY}
-            onClick={handleOpenProjectModalForm}
+            onClick={handleOpenAddProjectModalForm}
           >
             <img src={addIcon} className='w-3 h-3' alt='Add' />
             New Project
           </Button>
           <ProjectModalForm
-            title='Add new project'
+            title={isEditing ? 'Edit Project' : 'Add New Project'}
             isOpen={isProjectModalFormOpen}
             onClose={handleCloseProjectModalForm}
           />
         </div>
-        <ProjectTable dataTable={state.data} />
+        <ProjectTable
+          dataTable={state.data}
+          onOpenEdit={handleOpenEditProjectModalForm}
+          onDelete={handleOpenDeleteModalForm}
+        />
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={handleDeleteModalClose}
+          projectId={state.selectedProjectId}
+        />
       </div>
     </main>
   );
